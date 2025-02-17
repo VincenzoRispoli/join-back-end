@@ -29,4 +29,21 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.set_password(password)
         account.save()
         return account
-         
+    
+class LoginDataSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    user_id = serializers.IntegerField()
+    email = serializers.EmailField() 
+    
+    
+class RegistrationDataSerializer(serializers.Serializer):
+    
+    token = serializers.CharField()
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    user_id = serializers.IntegerField()
+    email = serializers.EmailField() 

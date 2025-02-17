@@ -3,6 +3,7 @@ from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_MET
 class IsStaffOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         is_staff = bool(request.user and request.user.is_staff)
+        print(bool(request.user.is_staff))
         return is_staff or request.method in SAFE_METHODS
     
     

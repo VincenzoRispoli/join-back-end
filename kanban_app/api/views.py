@@ -10,22 +10,6 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .permissions import IsAdminForDeleteOrPatchOrReadOnly, IsOwner, IsStaffOrReadOnly 
 
-
-# class UsersView(mixins.ListModelMixin,
-#                 mixins.CreateModelMixin,
-#                 generics.GenericAPIView):
-#     """
-#     List all snippets, or create a new snippet.
-#     """
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-    
-#     def get(self, request, *args, **kwargs):
-#         return self.list(request, *args, **kwargs)
-
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
-
 class ContactView(generics.ListCreateAPIView):
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
@@ -79,8 +63,4 @@ class SubtaskSingleView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Subtask.objects.all()
     serializer_class = SubtaskSerializer
     permission_classes = [IsStaffOrReadOnly]
-
-      
-             
-     
      
