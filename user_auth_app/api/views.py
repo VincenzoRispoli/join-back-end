@@ -7,13 +7,10 @@ from rest_framework.permissions import AllowAny
 from user_auth_app.api.serializers import RegistrationSerializer, LoginDataSerializer, RegistrationDataSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from django.contrib.auth import authenticate
 from .factories import LoginData, RegistrationData
 
 # Create your views here.
-
-@api_view(['GET', 'POST'])
-def user_test_view(request):
-    return Response({'message': 'ciao bello'})
 
 class RegistrationView(APIView):
     permission_classes = [AllowAny]
@@ -24,22 +21,29 @@ class RegistrationView(APIView):
         if serializer.is_valid():
           saved_account = serializer.save()
           token, created = Token.objects.get_or_create(user=saved_account)
-          data = self.get_user_and_regist_data(self, saved_account, token)
+          data = self.get_user_and_regist_data(saved_account, token)
         else:
            return Response(serializer.errors)
         return Response(data)
     
     def get_user_and_regist_data(self, saved_account, token):
-        user_data = RegistrationData(token.key, saved_account.first_name, saved_account.last_name, saved_account.is_staff, saved_account.email)
+        user_data = RegistrationData(token.key, 
+                                     saved_account.username,
+                                     saved_account.first_name, 
+                                     saved_account.last_name, 
+                                     saved_account.is_staff, 
+                                     saved_account.is_superuser,
+                                     saved_account.email)
         user_data_serializer = RegistrationDataSerializer(user_data)
         return user_data_serializer.data
         
+    
     
 class CustomLoginView(ObtainAuthToken):
     permission_classes = [AllowAny]
    
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data, context={'request': request})
         data = {}
         if serializer.is_valid():
           user = serializer.validated_data['user']
@@ -47,7 +51,7 @@ class CustomLoginView(ObtainAuthToken):
         else:
            return Response(self.validation_error_response(serializer)) 
 
-    def success_response(self,user):
+    def success_response(self, user):
         login_data = self.get_user_and_login_data(user)
         return {
               'ok': True,
@@ -62,13 +66,11 @@ class CustomLoginView(ObtainAuthToken):
                'status': status.HTTP_400_BAD_REQUEST
            }
        
-    def get_user_and_login_data(self,user):
+    def get_user_and_login_data(self, user):
         token, created = Token.objects.get_or_create(user=user)
         login_data = LoginData(token.key, user.username, user.first_name, user.last_name, user.pk, user.email)
         login_data_serializer = LoginDataSerializer(login_data)
         return login_data_serializer.data
-    
-    
      
            
     

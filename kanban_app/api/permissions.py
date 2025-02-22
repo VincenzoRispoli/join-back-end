@@ -1,9 +1,9 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+from rest_framework.exceptions import PermissionDenied
 
 class IsStaffOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         is_staff = bool(request.user and request.user.is_staff)
-        print(bool(request.user.is_staff))
         return is_staff or request.method in SAFE_METHODS
     
     
@@ -18,7 +18,6 @@ class IsAdminForDeleteOrPatchOrReadOnly(BasePermission):
     
 class IsOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
-        print("the printed object is",obj)
         if request.method in SAFE_METHODS:
             return True
         elif request.method == 'DELETE':

@@ -22,6 +22,17 @@ class ContactSingleView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ContactSerializer
     permission_classes = [IsOwner]
     
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"contact": serializer.data,"message": "Contact successfully updated", }, status= status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        super().destroy(request, *args, **kwargs)
+        return Response({'message':'Contact succesfully deleted'}, status= status.HTTP_200_OK)
+    
 
 class UsersOfTaskList(generics.ListCreateAPIView):
     serializer_class = ContactSerializer
