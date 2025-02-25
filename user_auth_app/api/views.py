@@ -23,7 +23,7 @@ class RegistrationView(APIView):
           token, created = Token.objects.get_or_create(user=saved_account)
           data = self.get_user_and_regist_data(saved_account, token)
         else:
-           return Response(serializer.errors)
+           return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(data)
     
     def get_user_and_regist_data(self, saved_account, token):
