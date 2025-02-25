@@ -8,6 +8,8 @@ from user_auth_app.api.serializers import RegistrationSerializer, LoginDataSeria
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.contrib.auth import authenticate
+
+from django.contrib.auth.models import User
 from .factories import LoginData, RegistrationData
 
 # Create your views here.
@@ -41,10 +43,18 @@ class RegistrationView(APIView):
     
 class CustomLoginView(ObtainAuthToken):
     permission_classes = [AllowAny]
+
    
     def post(self, request):
+        username = request.data.get('username').strip()
+        email = request.data.get('email').strip()
+        print(username)
+        print(email)
+        user = User.objects.filter(username = username, email= email)
+        if not user:
+            return Response({'ok': False, 'error': 'A User with this Username or E-Mail do not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = self.serializer_class(data=request.data, context={'request': request})
-        data = {}
         if serializer.is_valid():
           user = serializer.validated_data['user']
           return Response(self.success_response(user))
