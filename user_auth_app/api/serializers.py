@@ -22,11 +22,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         email= data.get('email')
         
         if User.objects.filter(username=username).exists():
-            errors['username'] = 'Username already exist'
+            errors['username'] = 'A User with this username already exist'
         if password != repeated_password:
             errors['password'] = "passwords don't match"
         if User.objects.filter(email = email).exists():
-            errors['email'] = "Email already exist"
+            errors['email'] = "A User with this E-mail already exist"
         
         if errors:
             raise serializers.ValidationError(errors)
