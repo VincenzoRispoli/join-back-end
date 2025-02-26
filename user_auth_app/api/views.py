@@ -38,9 +38,9 @@ class RegistrationView(APIView):
                                      saved_account.email)
         user_data_serializer = RegistrationDataSerializer(user_data)
         return user_data_serializer.data
+            
         
-    
-    
+       
 class CustomLoginView(ObtainAuthToken):
     permission_classes = [AllowAny]
 
@@ -48,18 +48,17 @@ class CustomLoginView(ObtainAuthToken):
     def post(self, request):
         username = request.data.get('username').strip()
         email = request.data.get('email').strip()
-        print(username)
-        print(email)
-        user = User.objects.filter(username = username, email= email)
+        password = request.data.get('password')
+        user = self.custom_authentication(username, email, password)
         if not user:
-            return Response({'ok': False, 'error': 'A User with this Username or E-Mail do not exist'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        if serializer.is_valid():
-          user = serializer.validated_data['user']
-          return Response(self.success_response(user))
+            return Response({'ok': False, 'error': 'Username, E-Mail or Password are not correct'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-           return Response(self.validation_error_response(serializer)) 
+            serializer = self.serializer_class(data=request.data, context={'request': request})
+            if serializer.is_valid():
+               user = serializer.validated_data['user']
+               return Response(self.success_response(user))
+            else:
+                return Response(self.validation_error_response(serializer)) 
 
     def success_response(self, user):
         login_data = self.get_user_and_login_data(user)
@@ -81,6 +80,15 @@ class CustomLoginView(ObtainAuthToken):
         login_data = LoginData(token.key, user.username, user.first_name, user.last_name, user.pk, user.email)
         login_data_serializer = LoginDataSerializer(login_data)
         return login_data_serializer.data
+    
+    
+    def custom_authentication(self, username, email, password):
+        try:
+           user = User.objects.get(username = username, email = email)
+           authenticated_user = authenticate(username=username, password=password)
+           return authenticated_user
+        except User.DoesNotExist:
+               return None
      
            
     
