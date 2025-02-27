@@ -46,7 +46,6 @@ class UsersOfTaskList(generics.ListCreateAPIView):
         pk = self.kwargs.get('pk')
         task = Task.objects.get(pk=pk)
         user = serializer.save()
-        # serializer.save(task = [task])
         task.users.add(user)
         task.save()
         

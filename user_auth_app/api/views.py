@@ -51,7 +51,7 @@ class CustomLoginView(ObtainAuthToken):
         password = request.data.get('password')
         user = self.custom_authentication(username, email, password)
         if not user:
-            return Response({'ok': False, 'error': 'Username, E-Mail or Password are not correct'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'ok': False, 'error': 'A User with given credentials, does not exist'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer = self.serializer_class(data=request.data, context={'request': request})
             if serializer.is_valid():
