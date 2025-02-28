@@ -33,24 +33,22 @@ class ContactSingleView(generics.RetrieveUpdateDestroyAPIView):
         super().destroy(request, *args, **kwargs)
         return Response({'message':'Contact succesfully deleted'}, status= status.HTTP_200_OK)
     
-
+    
 class UsersOfTaskList(generics.ListCreateAPIView):
     serializer_class = ContactSerializer
     
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         task = Task.objects.get(pk=pk)
-        return task.users.all()
+        return task.contacts.all()
     
     def perform_create(self, serializer):
         pk = self.kwargs.get('pk')
         task = Task.objects.get(pk=pk)
         user = serializer.save()
-        task.users.add(user)
+        task.contacts.add(user)
         task.save()
         
-
-
 class TasksView(generics.ListCreateAPIView):
     queryset = Task.objects.all();
     serializer_class = TaskSerializer;
