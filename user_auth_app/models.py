@@ -1,7 +1,17 @@
 from django.db import models
-from django.contrib.auth.models import User
-
-# Create your models here.
+from django.contrib.auth.models import User as DjangoUser
 
 class User(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    """
+    Extension model for the default Django User.
+
+    This model creates a one-to-one relationship with Django’s built-in `User` model,
+    allowing you to extend it with additional fields if needed.
+    """
+    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE)
+
+    def __str__(self):
+        """
+        Returns the username of the associated Django user.
+        """
+        return self.user.username
