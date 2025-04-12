@@ -23,7 +23,7 @@ To get the project up and running on your local machine, follow these steps:
 
 Begin by cloning the repository to your local machine:
 
-git clone https://github.com/yourusername/join-backend.git
+git clone https://github.com/VincenzoRispoli/join-back-end
 
 
 ### 2. Install Dependencies
