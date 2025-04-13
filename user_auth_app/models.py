@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User as DjangoUser
+from django.contrib.auth.models import User
 
 class User(models.Model):
     """
@@ -8,7 +8,7 @@ class User(models.Model):
     This model creates a one-to-one relationship with Django’s built-in `User` model,
     allowing you to extend it with additional fields if needed.
     """
-    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
         """

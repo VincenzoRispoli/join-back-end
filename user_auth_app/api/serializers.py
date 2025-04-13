@@ -38,6 +38,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         email = data.get('email')
         password = data.get('password')
         repeated_password = data.get('repeated_password')
+        
 
         if User.objects.filter(username=username).exists():
             errors['username'] = 'A user with this username already exists.'

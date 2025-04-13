@@ -18,6 +18,15 @@ class RegistrationView(APIView):
     permission_classes = [AllowAny]
    
     def post(self, request):
+        username = request.data.get('username');
+        if username == 'Guest':
+            try:
+                guest_user = User.objects.get(username='Guest')
+                token,_ = Token.objects.get_or_create(user=guest_user)
+                data = self.get_user_and_regist_data(guest_user, token)
+                return Response(data)
+            except User.DoesNotExist:
+                pass
         serializer = RegistrationSerializer(data=request.data)
         data={}
         if serializer.is_valid():
