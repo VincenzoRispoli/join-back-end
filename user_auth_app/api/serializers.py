@@ -33,13 +33,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
         - Ensures password and repeated password match
         """
         errors = {}
-
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
         repeated_password = data.get('repeated_password')
-        
-
+        self.check_user_data(errors, username, email,password, repeated_password)
+        return data
+    
+    def check_user_data(self, errors, username, email, password, repeated_password):
         if User.objects.filter(username=username).exists():
             errors['username'] = 'A user with this username already exists.'
         
@@ -51,8 +52,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
         if errors:
             raise serializers.ValidationError(errors)
-
-        return data
+        
+        
 
     def create(self, validated_data):
         """
