@@ -9,10 +9,10 @@ class Contact(models.Model):
     Contacts can be assigned to multiple tasks.
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.TextField(max_length=100)
-    phone = models.CharField(max_length=200)
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
+    email = models.TextField(max_length=100, blank=True)
+    phone = models.CharField(max_length=200, blank=True)
     badge_color = models.CharField(max_length=100, default='red')
 
     def __str__(self):
@@ -27,10 +27,10 @@ class Task(models.Model):
     Represents a task in the kanban system.
     A task can have multiple contacts assigned and can include subtasks.
     """
-    title = models.CharField(max_length=150)
-    description = models.TextField(max_length=500)
-    category = models.CharField(max_length=100)
-    due_date = models.DateField()
+    title = models.CharField(max_length=150, blank=True)
+    description = models.TextField(max_length=500, blank=True)
+    category = models.CharField(max_length=100, blank=True)
+    due_date = models.DateField(blank=True, null=True)
     priority = models.CharField(max_length=100)
     contacts = models.ManyToManyField(Contact, related_name='tasks')  # Assigned contacts
     state = models.CharField(max_length=255, default='todo')  # e.g., todo, in-progress, done
@@ -39,7 +39,7 @@ class Task(models.Model):
         """
         Return the category of the task as the string representation.
         """
-        return self.category
+        return self.title
 
 
 class Subtask(models.Model):

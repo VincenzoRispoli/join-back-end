@@ -15,24 +15,35 @@ class ContactSerializer(serializers.ModelSerializer):
             'user', 'id', 'first_name', 'last_name',
             'phone', 'email', 'badge_color'
         ]
+        extra_kwargs = {
+            'email': {'required': False, 'allow_null': True},
+            'first_name': {'required': False, 'allow_null': True},
+            'last_name': {'required': False, 'allow_null': True},
+            'phone': {'required': False, 'allow_null': True}
+        }
 
-    def validate_name(self, value):
-        """
-        Custom validation method (unused currently).
-
-        NOTE: This method would only be called if 'name' was a field in the serializer,
-        which it isn't. You may want to use `validate_first_name` and `validate_last_name` instead.
-        """
-        errors = []
-        if 'X' in value:
-            errors.append('No X in name please')
-        if 'Y' in value:
-            errors.append('No Y in name please')
+    def validate(self, data):
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        email = data.get('email')
+        phone = data.get('phone')
+        errors = self.check_contact_data(first_name, last_name, email, phone)
 
         if errors:
             raise serializers.ValidationError(errors)
+        return data
 
-        return value
+    def check_contact_data(self,first_name, last_name, email, phone):
+        errors = {}
+        if not first_name:
+            errors['first_name'] = 'Please insert a contact first name'
+        if not last_name:
+            errors['last_name'] = 'Please insert a contact last name'
+        if not email:
+            errors['email'] = 'Please insert a contact email'
+        if not phone:
+            errors['phone'] = 'Please insert a phone number'
+        return errors
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -56,36 +67,43 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
+        extra_kwargs = {
+            'title': {'required': False, 'allow_null': True},
+            'description': {'required': False, 'allow_null': True},
+            'priority': {'required': False, 'allow_null': True},
+            'due_date': {'required': False, 'allow_null': True},
+            'category': {'required': False}
+        }
+
+    def validate(self, data):
+        title = data.get('title')
+        category = data.get('category')
+        date = data.get('due_date')
+
+        errors = self.check_task_data(title, category, date)
+        print(errors)
+        if errors:
+            raise serializers.ValidationError(errors)
+        return data
+
+    def check_task_data(self, title, category, date):
+        errors = {}
+        if not title or len(title) < 4:
+            errors['title'] = "The title must have at least 4 characters"
+
+        if date is None:
+            errors['due_date'] = 'Please insert the due date'
+
+        if not category:
+            errors['category'] = 'Please insert the category'
+
+        return errors
 
     def get_contacts_count(self, obj):
         """
         Returns the number of contacts related to the task.
         """
         return obj.contacts.count()
-
-
-class TaskHyperLinkedSerializer(TaskSerializer, serializers.HyperlinkedModelSerializer):
-    """
-    Extends TaskSerializer using HyperlinkedModelSerializer
-    to use hyperlinks for related fields instead of primary keys.
-
-    Optionally allows dynamic field inclusion by passing a `fields` argument.
-    """
-    def __init__(self, *args, **kwargs):
-        
-        fields = kwargs.pop('fields', None)
-        super().__init__(*args, **kwargs)
-
-        if fields is not None:
-            allowed = set(fields)
-            existing = set(self.fields)
-            # Remove fields not explicitly listed
-            for field_name in existing - allowed:
-                self.fields.pop(field_name)
-
-    class Meta:
-        model = Task
-        exclude = [] 
 
 
 class SubtaskSerializer(serializers.ModelSerializer):
