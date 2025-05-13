@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status, viewsets
-from kanban_app.models import Contact, Subtask, User, Task
+from kanban_app.models import Contact, Subtask, Task
 from kanban_app.api.serializers import ContactSerializer, TaskSerializer, SubtaskSerializer
 from rest_framework.views import APIView
 from rest_framework import mixins
@@ -25,8 +25,11 @@ class ContactView(APIView):
 
     def post(self, request):
         serializer = ContactSerializer(data=request.data)
+        print(request.data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
+            print(f"{serializer.data}")
             return Response({'data': serializer.data, 'ok': True, 'message': 'Contact successfully created'})
         else:
             return Response({'data': serializer.errors, 'ok': False, 'error': 'Contact not created, an error occurred'})

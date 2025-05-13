@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from kanban_app.models import Subtask, Contact, Task
+from user_auth_app.models import UserProfile
 
 
 class ContactSerializer(serializers.ModelSerializer):
@@ -33,7 +34,7 @@ class ContactSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors)
         return data
 
-    def check_contact_data(self,first_name, last_name, email, phone):
+    def check_contact_data(self, first_name, last_name, email, phone):
         errors = {}
         if not first_name:
             errors['first_name'] = 'Please insert a contact first name'
@@ -81,7 +82,6 @@ class TaskSerializer(serializers.ModelSerializer):
         date = data.get('due_date')
 
         errors = self.check_task_data(title, category, date)
-        print(errors)
         if errors:
             raise serializers.ValidationError(errors)
         return data

@@ -1,4 +1,5 @@
 from django.db import models
+from user_auth_app.models import UserProfile
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -19,7 +20,7 @@ class Contact(models.Model):
         """
         Return the username of the associated user as the string representation.
         """
-        return self.user.username
+        return f"{self.first_name} {self.last_name}"
 
 
 class Task(models.Model):
