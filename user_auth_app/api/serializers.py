@@ -29,43 +29,44 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'email': {'required': False, 'allow_blank': True},
             'password': {'write_only': True, 'required': False, 'allow_blank': True},
         }
-
-    def validate(self, data):
-        """
-        Custom validation:
-        - Checks if username and email are already taken
-        - Ensures password and repeated password match
-        """
-        username = data.get('username')
-        first_name = data.get('first_name')
-        last_name = data.get('last_name')
-        email = data.get('email')
+    
+    def validate_username(self, value):
+        if not value or len(value) < 3:
+            raise serializers.ValidationError('Please insert a username with at least 3 characters')
+        elif User.objects.filter(username=value).exists():
+            raise serializers.ValidationError('A user with this username already exists.')
+        return value
+    
+    def validate_first_name(self, value):
+        if not value or len(value) < 3:
+            raise serializers.ValidationError('Please insert a first name with at least 3 characters')
+        return value
+    
+    def validate_last_name(self, value):
+        if not value or len(value) < 3:
+            raise serializers.ValidationError('Please insert a last name with at least 3 characters')
+        return value
+    
+    def validate_email(self, value):
+        if not value:
+            raise serializers.ValidationError('Please insert an user email')
+        elif User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('A user with this email already exists.')
+        return value
+    
+    def validate_password(self, value):
+        if not value or len(value) < 8:
+            raise serializers.ValidationError('Please insert a password with at least 8 characters')
+        return value
+    
+    def validate_data(self, data):
         password = data.get('password')
         repeated_password = data.get('repeated_password')
-        self.check_user_data(username, first_name, last_name, email,
-                             password, repeated_password)
+        
+        if password != repeated_password:
+            raise serializers.ValidationError({'password': 'Passwords do not match.'})
         return data
 
-    def check_user_data(self, username, first_name, last_name, email, password, repeated_password):
-        errors = {}
-        if not username or len(username) < 3:
-            errors['username'] = 'Please insert a username with at least 3 characters'
-        elif User.objects.filter(username=username).exists():
-            errors['username'] = 'A user with this username already exists.'
-        if not first_name or len(first_name) < 3:
-            errors['first_name'] = 'Please insert a first name with at least 3 characters'
-        if not last_name or len(last_name) < 3:
-            errors['last_name'] = 'Please insert a last name with at least 3 characters'
-        if not email:
-            errors['email'] = 'Please insert an user email'
-        elif User.objects.filter(email=email).exists():
-            errors['email'] = 'A user with this email already exists.'
-        if not password or len(password) < 8:
-            errors['password'] = 'Please insert a password with at least 8 characters'
-        if password != repeated_password:
-            errors['password'] = "Passwords do not match."
-        if errors:
-            raise serializers.ValidationError(errors)
 
     def create(self, validated_data):
         """
