@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
-from kanban_app.api.views import ContactView, ContactSingleView, TaskListView,TaskDetailView ,UsersOfTaskList,SubatasksListView,SubtaskSingleView
+from kanban_app.api.views import ContactView, ContactSingleView, TaskListView,TaskDetailView,SubatasksListView,SubtaskSingleView
 from rest_framework import routers
 
 
@@ -15,9 +15,6 @@ urlpatterns = [
     # Task endpoints
     path('tasks/', TaskListView.as_view(), name='task-list'),  # List and create tasks
     path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),  # Retrieve, update, delete a single task
-
-    # Get all users (contacts) assigned to a specific task
-    path('tasks/<int:pk>/contacts/', UsersOfTaskList.as_view(), name='task-users'),
 
     # Subtask endpoints
     path('subtasks/', SubatasksListView.as_view(), name='subtask-list'),  # List and create subtasks

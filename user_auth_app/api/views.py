@@ -61,8 +61,6 @@ class CustomLoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             token, _ = Token.objects.get_or_create(user=user)
-            print(user)
-            print(user.id)
             data = {
                 'token': token.key,
                 'user_id': user.id,

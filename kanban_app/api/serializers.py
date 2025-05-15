@@ -123,3 +123,12 @@ class SubtaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subtask
         fields = ['id', 'task', 'task_id', 'title', 'is_completed']
+        extra_kwargs = {
+            'title': {'required': False, 'allow_null': True, 'allow_blank': True}
+        }
+
+    def validate_title(self, title):
+        if not title or len(title) < 3:
+            raise serializers.ValidationError(
+                'Please insert a subtask title with at least 3 characters')
+        return title

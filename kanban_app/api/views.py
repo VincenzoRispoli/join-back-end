@@ -25,8 +25,6 @@ class ContactView(APIView):
 
     def post(self, request):
         serializer = ContactSerializer(data=request.data)
-        print(request.data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
             print(f"{serializer.data}")
@@ -62,33 +60,6 @@ class ContactSingleView(APIView):
         serializer = ContactSerializer(contact)
         contact.delete()
         return Response({'data': serializer.data, 'message': 'Contact successfully deleted'}, status=status.HTTP_200_OK)
-
-
-class UsersOfTaskList(generics.ListCreateAPIView):
-    """
-    API endpoint to list or assign users (contacts) to a specific task.
-    - GET: lists users assigned to a task.
-    - POST: adds a contact to the task.
-    """
-    serializer_class = ContactSerializer
-
-    def get_queryset(self):
-        """
-        Return the list of contacts associated with a specific task.
-        """
-        pk = self.kwargs.get('pk')
-        task = get_object_or_404(Task, pk=pk)
-        return task.contacts.all()
-
-    def perform_create(self, serializer):
-        """
-        Assign a new contact to the task.
-        """
-        pk = self.kwargs.get('pk')
-        task = get_object_or_404(Task, pk=pk)
-        user = serializer.save()
-        task.contacts.add(user)
-        task.save()
 
 
 # -------------------------
@@ -165,7 +136,8 @@ class SubatasksListView(APIView):
             serializer.save()
             return Response({'data': serializer.data, 'ok': True, 'message': 'Subtask successfully created'}, status=status.HTTP_201_CREATED)
         else:
-            return Response({'data': serializer.errors, 'ok': False, 'error': 'An error  occurred during the subtask creation'}, status=status.HTTP_400_BAD_REQUEST)
+            print(serializer.errors)
+            return Response({'data': serializer.errors, 'ok': False, 'error': 'An error occurred during the subtask creation'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SubtaskSingleView(generics.RetrieveUpdateDestroyAPIView):
