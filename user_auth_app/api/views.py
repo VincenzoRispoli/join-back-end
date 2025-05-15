@@ -16,7 +16,6 @@ class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print(request.data)
         username = request.data.get('username')
         if username == 'Guest':
             try:
