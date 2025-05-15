@@ -59,7 +59,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Please insert a password with at least 8 characters')
         return value
     
-    def validate_data(self, data):
+    def validate(self, data):
         password = data.get('password')
         repeated_password = data.get('repeated_password')
         

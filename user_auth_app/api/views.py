@@ -16,6 +16,7 @@ class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        print(request.data)
         username = request.data.get('username')
         if username == 'Guest':
             try:
@@ -30,7 +31,7 @@ class RegistrationView(APIView):
                     'is_staff': guest_user.is_staff,
                     'is_superuser': guest_user.is_superuser
                 }
-                return Response({'data': data, 'ok':True})
+                return Response({'data': data, 'ok': True})
             except User.DoesNotExist:
                 pass
         serializer = RegistrationSerializer(data=request.data)
