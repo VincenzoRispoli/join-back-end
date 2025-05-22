@@ -1,14 +1,17 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework.response import Response
 from kanban_app.models import Contact, Subtask, Task
 from kanban_app.api.serializers import ContactSerializer, TaskSerializer, SubtaskSerializer
 from rest_framework.views import APIView
-from rest_framework import mixins
-from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.exceptions import PermissionDenied
 from .permissions import IsAdminForDeleteOrPatchOrReadOnly, IsOwner, IsStaffOrReadOnly
+
+# -------------------------
+# CONTACT VIEWS
+# -------------------------
 
 
 class ContactView(APIView):
@@ -27,7 +30,6 @@ class ContactView(APIView):
         serializer = ContactSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            print(f"{serializer.data}")
             return Response({'data': serializer.data, 'ok': True, 'message': 'Contact successfully created'})
         else:
             return Response({'data': serializer.errors, 'ok': False, 'error': 'Contact not created, an error occurred'})
@@ -47,6 +49,10 @@ class ContactSingleView(APIView):
 
     def put(self, request, pk):
         contact = Contact.objects.get(pk=pk)
+        try:
+            self.check_object_permissions(request, contact)
+        except PermissionDenied:
+            return Response({'ok': False, 'permission': 'Permission denied: only Owner, Admin or Guest User can update this contact'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ContactSerializer(
             contact, data=request.data, partial=True)
         if serializer.is_valid():
@@ -57,21 +63,24 @@ class ContactSingleView(APIView):
 
     def delete(self, request, pk):
         contact = Contact.objects.get(pk=pk)
+        try:
+            self.check_object_permissions(request, contact)
+        except PermissionDenied:
+            return Response({'ok': False, 'permission': 'Permission denied: only Admin or Guest User can delete this contact'}, status=status.HTTP_403_FORBIDDEN)
         serializer = ContactSerializer(contact)
         contact.delete()
         return Response({'data': serializer.data, 'message': 'Contact successfully deleted'}, status=status.HTTP_200_OK)
-
-
 # -------------------------
 # TASK VIEWS
 # -------------------------
+
 
 class TaskListView(APIView):
     """
     API endpoint to list or create tasks.
     Write operations are restricted to staff users.
     """
-    # permission_classes = [IsStaffOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
 
     def get(self, request):
         tasks = Task.objects.all()
@@ -92,7 +101,7 @@ class TaskDetailView(APIView):
     API endpoint to retrieve, update or delete a single task.
     Write and delete operations require staff permissions.
     """
-    permission_classes = [IsStaffOrReadOnly]
+    permission_classes = [IsAdminForDeleteOrPatchOrReadOnly]
 
     def get(self, request, pk):
         task = Task.objects.get(pk=pk)
@@ -101,6 +110,11 @@ class TaskDetailView(APIView):
 
     def put(self, request, pk):
         task = Task.objects.get(pk=pk)
+        try:
+            self.check_object_permissions(request, task)
+        except PermissionDenied:
+            return Response({'ok': False, 'permission': 'Only staff members or Admin can update the tasks'},
+                            status=status.HTTP_403_FORBIDDEN)
         serializer = TaskSerializer(task, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -110,6 +124,10 @@ class TaskDetailView(APIView):
 
     def delete(self, request, pk):
         task = Task.objects.get(pk=pk)
+        try:
+            self.check_object_permissions(request, task)
+        except PermissionDenied:
+            return Response({'ok': False, 'permission': 'Only Admin or Guest User can delete tasks'}, status=status.HTTP_403_FORBIDDEN)
         task.delete()
         return Response({'ok': True, 'message': 'Task successfully deleted'})
 
@@ -136,11 +154,10 @@ class SubatasksListView(APIView):
             serializer.save()
             return Response({'data': serializer.data, 'ok': True, 'message': 'Subtask successfully created'}, status=status.HTTP_201_CREATED)
         else:
-            print(serializer.errors)
             return Response({'data': serializer.errors, 'ok': False, 'error': 'An error occurred during the subtask creation'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SubtaskSingleView(generics.RetrieveUpdateDestroyAPIView):
+class SubtaskSingleView(APIView):
     """
     API endpoint to retrieve, update, or delete a single subtask.
     Only staff users have write/delete access.

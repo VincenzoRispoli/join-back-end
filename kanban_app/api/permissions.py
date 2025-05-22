@@ -9,7 +9,6 @@ class IsStaffOrReadOnly(BasePermission):
     """
     def has_permission(self, request, view):
         is_staff = bool(request.user and request.user.is_staff)
-        # Grant access if the user is staff or the request is read-only
         return is_staff or request.method in SAFE_METHODS
 
 
@@ -42,7 +41,6 @@ class IsOwner(BasePermission):
         - Or a superuser.
     """
     def has_object_permission(self, request, view, obj):
-
         if request.method in SAFE_METHODS:
             return True
 
