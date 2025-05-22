@@ -67,7 +67,8 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = '__all__'
+        fields = ['title', 'description', 'category',
+                  'due_date', 'priority', 'contacts', 'contacts_count', 'contacts_ids', 'state']
         extra_kwargs = {
             'title': {'required': False, 'allow_null': True},
             'description': {'required': False, 'allow_null': True},
