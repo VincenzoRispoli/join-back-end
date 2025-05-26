@@ -19,7 +19,7 @@ class ContactView(APIView):
     API endpoint to list all contacts or create a new contact.
     Accessible only to staff and superusers for write operations.
     """
-    permission_classes = [IsAdminForDeleteOrPatchOrReadOnly]
+    permission_classes = [IsStaffOrReadOnly]
 
     def get(self, request):
         contacts = Contact.objects.all()
@@ -162,7 +162,7 @@ class SubtaskSingleView(APIView):
     API endpoint to retrieve, update, or delete a single subtask.
     Only staff users have write/delete access.
     """
-    permission_classes = [IsStaffOrReadOnly]
+    permission_classes = [IsAdminForDeleteOrPatchOrReadOnly]
 
     def get(self, request, pk):
         subtask = Subtask.objects.get(pk=pk)
@@ -171,6 +171,10 @@ class SubtaskSingleView(APIView):
 
     def put(self, request, pk):
         subtask = Subtask.objects.get(pk=pk)
+        try:
+            self.check_object_permissions(request, subtask)
+        except PermissionDenied:
+            return Response({'ok': False, 'permission': 'Only staff members or Admin can update subtasks'})
         serializer = SubtaskSerializer(subtask, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -180,6 +184,10 @@ class SubtaskSingleView(APIView):
 
     def delete(self, request, pk):
         subtask = Subtask.objects.get(pk=pk)
+        try:
+            self.check_object_permissions(request, subtask)
+        except PermissionDenied:
+            return Response({'ok': False, 'permission': 'Only staff members or Admin can delete subtasks'})
         serializer = SubtaskSerializer(subtask)
         subtask.delete()
         return Response({'data': serializer.data, 'ok': True, 'message': 'Subtask successfully deleted'})
